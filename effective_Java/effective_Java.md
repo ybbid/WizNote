@@ -102,13 +102,234 @@ EnumSet<Seasons> coldSeasons = EnumSet.of(Seasons.AUTMN, Seasons.WINTER);
 5、getType，类似于getInstance，但是getType在不同的类中。例如（在A类中有一个getType方法返回B类的实例）
 
 6、newType，类似于newInstance，但是newType在不同的类中。
-第二条：构造器的参数有多个时，考虑用构建器
+
+### 第二条：构造器的参数有多个时，考虑用构建器
+
 静态工厂和构造器共同的局限：不能很好地扩展到大量的可选参数。
 解决方法有，
 
- * 重叠构造器（第一个构造器只要必要的参数，第二个有一个可选参数。。。。。）
+*  重叠构造器（第一个构造器只要必要的参数，第二个有一个可选参数。。。。。）
 
-      
+   * 实例
+
+   ```Java
+   public class NutritionFacts {
+       private final int servingSize; // (mL) required
+       private final int servings; // (per container) required
+       private final int calories; // optional
+       private final int fat; // (g) optional
+
+       public NutritionFacts(int servingSize, int servings) {
+           this(servingSize, servings, 0);
+       }
+
+       public NutritionFacts(int servingSize, int servings, int calories) {
+           this(servingSize, servings, calories, 0);
+       }
+
+       public NutritionFacts(int servingSize, int servings, int calories, int fat)       	{
+           this.servingSize = servingSize;
+           this.servings = servings;
+           this.calories = calories;
+           this.fat = fat;
+       }
+       
+       public static void main(String[] args) {
+           NutritionFacts cocaCola = new NutritionFacts(240, 8, 100, 0);
+       }
+   }
+   ```
+
+   * 缺点
+     * 随着参数的增加，构造方法失去控制
+     * 代码难以阅读，无法直观地看出每个参数的含义
+
+*  JavaBean模式
+
+   *  实例
+
+      ```java
+      public class NutritionFacts {
+          // Parameters initialized to default values (if any)
+          private int servingSize = -1; // Required; no default value
+          private int servings = -1; // "     " "      "
+          private int calories = 0;
+          private int fat = 0;
+
+          public NutritionFacts() {
+          }
+
+          // Setters
+          public void setServingSize(int val) {
+              servingSize = val;
+          }
+
+          public void setServings(int val) {
+              servings = val;
+          }
+
+          public void setCalories(int val) {
+              calories = val;
+          }
+
+          public void setFat(int val) {
+              fat = val;
+          }
+
+          public static void main(String[] args) {
+              NutritionFacts cocaCola = new NutritionFacts();
+              cocaCola.setServingSize(240);
+              cocaCola.setServings(8);
+              cocaCola.setCalories(100);
+          }
+      }                           
+      ```
+
+   *  缺点
+
+      * 构造过程中JavaBean处于不一致状态
+      * 无法声明为final
+
+* Builder模式（适用于参数多，且多个参数可选）
+
+  * 实例
+
+  ```java
+  public class NutritionFacts {
+    	//可以声明为final类型
+      private final int servingSize;
+      private final int servings;
+      private final int calories;
+      private final int fat;
+
+      public static class Builder {
+          // Required parameters
+          private final int servingSize;
+          private final int servings;
+
+          // Optional parameters - initialized to default values
+          private int calories = 0;
+          private int fat = 0;
+
+          public Builder(int servingSize, int servings) {
+              this.servingSize = servingSize;
+              this.servings = servings;
+          }
+
+          public Builder calories(int val) {
+              calories = val;
+              return this;
+          }
+
+          public Builder fat(int val) {
+              fat = val;
+              return this;
+          }
+
+          public NutritionFacts build() {
+              return new NutritionFacts(this);
+          }
+      }
+
+      private NutritionFacts(Builder builder) {
+          servingSize = builder.servingSize;
+          servings = builder.servings;
+          calories = builder.calories;
+          fat = builder.fat;
+      }
+
+      public static void main(String[] args) {
+          NutritionFacts cocaCola = new NutritionFacts.Builder(240, 8)
+                  .calories(100).build();
+      }
+  }
+  ```
+
+  * 优点
+    * 可以对参数加约束条件，比如fat>=0，如果违反约束，可以抛出IllegalStateException
+    * 一个Builder可以创建多个对象，比如增减序列号，用于计数
+    * 与抽象工厂模式连用
+    * 比JavaBean安全
+  * 缺点
+    * 创建对象，需要先创建Builder，增加开销
+
+### 第三条：私有构造器或枚举类型强化Singleton属性
+
+* Java 1.5之前有两种方法实现单例模式
+
+  * final静态成员
+
+    * 实例
+
+      ```Java
+      public class Elvis {
+          public static final Elvis INSTANCE = new Elvis();
+
+          private Elvis() {
+          }
+
+          // This code would normally appear outside the class!
+          public static void main(String[] args) {
+              Elvis elvis = Elvis.INSTANCE;
+          }
+      }
+      ```
+
+  * 静态工厂方法
+
+    * 实例
+
+      ```Java
+      public class Elvis {
+          private static final Elvis INSTANCE = new Elvis();
+
+          private Elvis() {
+          }
+
+          public static Elvis getInstance() {
+              return INSTANCE;
+          }
+
+          public static void main(String[] args) {
+              Elvis elvis = Elvis.getInstance();
+          }
+      }
+      ```
+
+    * 优点
+
+      * 不改变API，可以改变为非Singleton
+
+    * 序列化
+
+      通常每次反序列化，都会创建一个新的实例
+
+      正确的做法是：声明实例域为transient，并在类中加入readResolve方法
+
+      ```java
+      private Elvis readResolve(){
+              return INSTANCE;
+      }
+      ```
+
+
+* 第三种方法-单元素枚举（最佳）
+
+  ```Java
+  public enum Elvis {
+      INSTANCE;
+
+      // This code would normally appear outside the class!
+      public static void main(String[] args) {
+          Elvis elvis = Elvis.INSTANCE;
+      }
+  }
+  ```
+
+  * 优点
+    * 简介，单个元素的枚举类型
+    * 无偿提供序列化机制，防止多次实例化
+
 第三章 对于所有对象都通用的方法
 
 第四章 类和接口
