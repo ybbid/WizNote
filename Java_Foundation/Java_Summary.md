@@ -6,12 +6,12 @@ Oracle制定的Java虚拟机标准，指令集、寄存器、类文件格式、�
 3. 多态。子类对象可以直接赋值给父类变量，运行时依然保持子类的行为特征。这意味着同一类型的对象在执行同一个方法(可以在运行时把该变量绑定到不同的对象)时，可能表现出不同的行为特征。。
 
 
-| 类内部	| 本包	| 子类|	外部包 |
-|-----|-----|-----|----|
-|public |	 √	| √	| √|	 √|
-|protected|	 √	| √	| √	| ×|
-|default 	| √	 |√	| ×	| ×|
-| private	| √	 |×	| ×	| ×|
+| 类内部       | 本包   | 子类   | 外部包  |
+| --------- | ---- | ---- | ---- |
+| public    | √    | √    | √    |
+| protected | √    | √    | √    |
+| default   | √    | √    | ×    |
+| private   | √    | ×    | ×    |
 default只能在本包中访问，protected相当于传递给子类的一种继承的东西。
 Java的访问控制是停留在编译层的，也就是它不会在.class文件中留下任何的痕迹，只在编译的时候进行访问控制的检查。
 this关键字两种使用场景
@@ -76,7 +76,7 @@ public class Sandwich extends Bread {
 
 * final类不可以有子类
 * immutable类，实例化后，实例变量不可改变，Java提供的八个包装类和String类都是不可变类
-如，Double d=new Double(6.5);
+  如，Double d=new Double(6.5);
 
 ##基本数据类型
 
@@ -188,24 +188,24 @@ Map接口（保存具有映射关系的数组）
 
 * java.util.Collection [I]
 
-	* java.util.List [I].(精确的控制每个元素插入的位置,用户能够使用索引（元素在List中的位置,数组下标）来访问List中的元素，这类似于Java的数组,允许有重复元素,ListIterator接口)
-   		* java.util.ArrayList [C]（默认长度为10，可变大小的数组，扩充1.5倍+1）
-   		
-   		* java.util.LinkedList [C].(提供额外的get，remove，insert方法操作首部或尾部，常用来实现堆栈（stack），队列（queue）或双向队列)
-   		* java.util.Vector [C]（Vector非常类似ArrayList，但是Vector是同步的，两个线程同时操作，ConcurrentModificationException异常）
-      * java.util.Stack [C]（push、pop、peek栈顶的元素、empty、search元素的位置）
-      
-	* java.util.Set [I]（不能包含有重复元素的集合，实现一个有效的equals(Object)方法）
-   		* java.util.HashSet [C]
-   		* java.util.SortedSet [I]
-		* java.util.TreeSet [C]
-	* java.util.Map [I]
-		* java.util.SortedMap [I]
-   		* java.util.TreeMap [C]
-		* java.util.Hashtable [C]（hashCode、equals，如果两个key相同，则hashcode必须相同，同步的）
-		* java.util.HashMap [C]（非同步的）
-		* java.util.LinkedHashMap [C]
-		* java.util.WeakHashMap [C]
+ * java.util.List [I].(精确的控制每个元素插入的位置,用户能够使用索引（元素在List中的位置,数组下标）来访问List中的元素，这类似于Java的数组,允许有重复元素,ListIterator接口)
+     * java.util.ArrayList [C]（默认长度为10，可变大小的数组，扩充1.5倍+1）
+
+        * java.util.LinkedList [C].(提供额外的get，remove，insert方法操作首部或尾部，常用来实现堆栈（stack），队列（queue）或双向队列)
+        * java.util.Vector [C]（Vector非常类似ArrayList，但是Vector是同步的，两个线程同时操作，ConcurrentModificationException异常）
+     * java.util.Stack [C]（push、pop、peek栈顶的元素、empty、search元素的位置）
+
+ * java.util.Set [I]（不能包含有重复元素的集合，实现一个有效的equals(Object)方法）
+     * java.util.HashSet [C]
+        * java.util.SortedSet [I]
+     * java.util.TreeSet [C]
+ * java.util.Map [I]
+  * java.util.SortedMap [I]
+     * java.util.TreeMap [C]
+  * java.util.Hashtable [C]（hashCode、equals，如果两个key相同，则hashcode必须相同，同步的）
+  * java.util.HashMap [C]（非同步的）
+  * java.util.LinkedHashMap [C]
+  * java.util.WeakHashMap [C]
 
 HastSet和Hashmap，采用hash算法来决定集合中元素的存储位置，“负载极限”决定了hash表的最大填满程度，当达到负载极限时，hash表会成倍的增加容量。例如负载极限为0.75，表示当hash表的3/4填满时，hash表会扩容，0.75是内存空间和查询时间的折中。
 HashTable把方法用synchronized关键字修饰，以实现线程安全，如
@@ -270,7 +270,7 @@ Collection
  　　1. List必须保持元素特定的顺序
  　　2. Set不能有重复元素
  　　3. Queue保持一个队列(先进先出)的顺序
-都支持Iterator
+      都支持Iterator
 
 ```java
 Iterator it = collection.iterator(); // 获得一个迭代子 
@@ -288,7 +288,7 @@ while(it.hasNext()) {
 * 如果程序在单线程环境中，或者访问仅仅在一个线程中进行，考虑非同步的类，其效率较高，如果多个线程可能同时操作一个类，应该使用同步的类。
 * 要特别注意对哈希表的操作，作为key的对象要正确复写equals和hashCode方法。
 * 尽量返回接口而非实际的类型，如返回List而非ArrayList，这样如果以后需要将ArrayList换成LinkedList时，客户端代码不用改变。这就是针对抽象编程。
- 
+
 ##泛型
 在定义类、接口、方法时，使用类型形参，在声明变量、创建对象、调用方法时指定
 
@@ -309,8 +309,8 @@ public static void main(String[] args)
 
 * 进程：多个程序的指令被快速轮换执行，多进程并发执行，目前操作系统大多采用效率更高的抢占式多任务操作策略。创建进程时，操作系统分配独立的内存空间和相关的资源
 * 线程：同一个进程同时并发处理多个任务，线程拥有自己的栈、程序计数器、局部变量，但不拥有系统资源
-Java创建线程的三种方法
-1、继承Thread类，重新run()方法，然后实例化，调用对象的start()方法启动线程
+  Java创建线程的三种方法
+  1、继承Thread类，重新run()方法，然后实例化，调用对象的start()方法启动线程
 
 ```java
 package com.thread;  
@@ -521,7 +521,7 @@ jt.join();//本线程必须等到jt执行完毕，才能执行
 ```
 
 * 后台线程
-所有的前台线程都死亡，后台线程自动死亡。JVM的垃圾回收线程就是典型的后台线程
+  所有的前台线程都死亡，后台线程自动死亡。JVM的垃圾回收线程就是典型的后台线程
 
 ```java
 DaemonThread t=new DaemonThread();
@@ -542,8 +542,8 @@ obj通常采用共享资源充当同步监视器
 线程互斥访问（协调）——序列化访问共享资源，每个访问临界共享资源的方法都必须同步
 
 1. 使用synchronized关键字
-对于某个特定的对象，其所有synchronized方法共享同一个锁。
-synchronized关键字在编译后会形成monitorenter、monitorexit指令，这两个指令需要一个引用指定锁定和解锁的对象。如果明确指定。。。。，如果synchronized修饰实例方法或者类方法，则对应的对象实例或者Class对象作为锁对象。Java线程映射到系统线程，所以阻塞、唤醒线程需要陷入核心态，所以比较重量级。
+   对于某个特定的对象，其所有synchronized方法共享同一个锁。
+   synchronized关键字在编译后会形成monitorenter、monitorexit指令，这两个指令需要一个引用指定锁定和解锁的对象。如果明确指定。。。。，如果synchronized修饰实例方法或者类方法，则对应的对象实例或者Class对象作为锁对象。Java线程映射到系统线程，所以阻塞、唤醒线程需要陷入核心态，所以比较重量级。
 
 ```java
 public class Account
@@ -575,7 +575,7 @@ public class Account
 ```
 
 2. 使用Lock
-显示的Lock具有细粒度的控制，例如可以在2s后（获取锁失败），然后开始干别的事情。而synchronized会在失败抛出异常。
+   显示的Lock具有细粒度的控制，例如可以在2s后（获取锁失败），然后开始干别的事情。而synchronized会在失败抛出异常。
 
 ```java
 private ReentrantLock lock=new ReentrantLock();
@@ -628,13 +628,13 @@ class BoundedBuffer {//缓存区（多个写线程，多个读线程，如果不
 包含五个实现类，
 
 1. ArrayBlockingQueue
-一个由数组支持的有界阻塞队列，其构造函数必须带一个int参数来指明其大小.其所含的对象是以FIFO(先入先出)顺序
+   一个由数组支持的有界阻塞队列，其构造函数必须带一个int参数来指明其大小.其所含的对象是以FIFO(先入先出)顺序
 2. LinkedBlockingQueue
-规定其大小（可选）
+   规定其大小（可选）
 3. PriortyBlockingQueue
-依据对象的自然排序顺序或者是构造函数的Comparator决定的顺序。
+   依据对象的自然排序顺序或者是构造函数的Comparator决定的顺序。
 4. SynchronousQueue
-操作必须是放和取交替完成的
+   操作必须是放和取交替完成的
 
 ```java
 class Producer extends Thread
@@ -1331,9 +1331,12 @@ public boolean readMetrix() throws IOException{
 javap -verbose UdpClient.class 
 （例如，String name="liuyongji"）
 编译完成后，
- #2 = String             
- #31            //  liuyongji
- #31 = Utf8               liuyongji
+\#2 = String
+
+\#31            //  liuyongji
+
+\#31 = Utf8               liuyongji
+
 类的初始化，
 主要是对类变量进行初始化，执行静态初始化器和静态初始化块。
 比如，

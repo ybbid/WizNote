@@ -1,7 +1,8 @@
 主要涉及：java.lang、java.util、java.util.concurrent、java.io
 [TOC]
 ##第二章 创建和销毁对象
-###第一条：考虑用静态工厂方法代替构造器（静态工厂方法不对应与工厂设计模式）
+#### 第一条：考虑用静态工厂方法代替构造器（静态工厂方法不对应与工厂设计模式）
+
 常用的创建对象的方法：构造器、静态工厂方法
 
 ```java
@@ -15,7 +16,8 @@ public static Boolean valueOf(boolean b){
 2. 不必每次都生成一个新对象（可以实现实例缓存，从而提高性能）
 3. 可以返回原类型的任何子类型（适用于基于接口的框架）
 
-####面向接口编程
+##### 面向接口编程
+
 通过面向接口编程降低程序的耦合
 假设程序中有个Comupter类需要组合一个输出设备，现在有两个选择：直接让Comupter该类组合一个Printer属性，或者让Comupter组合一个Output属性，那么到底采用哪种方式更好呢？
 假设让Computer组合一个Printer属性，如果有一天系统需要重构，需要使用BetterPrinter来代替Printer，于是我们需要打开Computer类源代码进行修改。
@@ -103,7 +105,7 @@ EnumSet<Seasons> coldSeasons = EnumSet.of(Seasons.AUTMN, Seasons.WINTER);
 
 6、newType，类似于newInstance，但是newType在不同的类中。
 
-### 第二条：构造器的参数有多个时，考虑用构建器
+#### 第二条：构造器的参数有多个时，考虑用构建器
 
 静态工厂和构造器共同的局限：不能很好地扩展到大量的可选参数。
 解决方法有，
@@ -144,7 +146,7 @@ EnumSet<Seasons> coldSeasons = EnumSet.of(Seasons.AUTMN, Seasons.WINTER);
      * 随着参数的增加，构造方法失去控制
      * 代码难以阅读，无法直观地看出每个参数的含义
 
-*  JavaBean模式
+* JavaBean模式
 
    *  实例
 
@@ -185,7 +187,7 @@ EnumSet<Seasons> coldSeasons = EnumSet.of(Seasons.AUTMN, Seasons.WINTER);
       }                           
       ```
 
-   *  缺点
+   * 缺点
 
       * 构造过程中JavaBean处于不一致状态
       * 无法声明为final
@@ -253,7 +255,7 @@ EnumSet<Seasons> coldSeasons = EnumSet.of(Seasons.AUTMN, Seasons.WINTER);
   * 缺点
     * 创建对象，需要先创建Builder，增加开销
 
-### 第三条：私有构造器或枚举类型强化Singleton属性
+#### 第三条：私有构造器或枚举类型强化Singleton属性
 
 * Java 1.5之前有两种方法实现单例模式
 
@@ -329,6 +331,120 @@ EnumSet<Seasons> coldSeasons = EnumSet.of(Seasons.AUTMN, Seasons.WINTER);
   * 优点
     * 简介，单个元素的枚举类型
     * 无偿提供序列化机制，防止多次实例化
+
+#### 第四条：强化不可实例化的能力
+
+* 静态工具类的作用（只包含静态方法和静态域）
+  * 可以把某类特定数据上的方法组织起来，如Math类或者Arrays类
+  * 实现某个接口的类的方法组织起来，如Collections类集合了很多List操作（List为接口）
+  * final类的方法组织起来
+* 不希望被实例化
+
+声明构造器为私有，并在构造器内抛出异常，并加以注释
+
+```java
+// Noninstantiable utility class
+public class UtilityClass {
+	// Suppress default constructor for noninstantiability
+	private UtilityClass() {
+		throw new AssertionError();
+	}
+}
+```
+
+#### 第五条：避免创建不必要的对象
+
+* 重用不可变的对象
+
+  * 静态工厂方法（如Boolean.valueOf(String) ）常常优于构造器(Boolean(String) )
+
+  ```java
+  //每次都会创建新的实例
+  String s1 = new String("stringgetter");
+  //常量池重用
+  String s2 = "stringgetter";
+  ```
+
+* 重用已知不会被修改的可变对象
+
+  ```java
+  //初始版本
+  public class Person {
+      private final Date birthDate;
+
+      public Person(Date birthDate) {
+          // Defensive copy - see Item 39
+          this.birthDate = new Date(birthDate.getTime());
+      }
+      
+      public boolean isBabyBoomer() {
+          // 每次调用该方法都会创建boomStart/boomEnd实例
+          Calendar gmtCal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+          gmtCal.set(1946, Calendar.JANUARY, 1, 0, 0, 0);
+          Date boomStart = gmtCal.getTime();
+          gmtCal.set(1965, Calendar.JANUARY, 1, 0, 0, 0);
+          Date boomEnd = gmtCal.getTime();
+          return birthDate.compareTo(boomStart) >= 0
+                  && birthDate.compareTo(boomEnd) < 0;
+      }
+  }
+
+  //改进版本，声明为final类型，在静态块中初始化
+  class Person {
+      private final Date birthDate;
+
+      public Person(Date birthDate) {
+          // Defensive copy - see Item 39
+          this.birthDate = new Date(birthDate.getTime());
+      }
+      
+      private static final Date BOOM_START;
+      private static final Date BOOM_END;
+
+      static {
+          Calendar gmtCal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+          gmtCal.set(1946, Calendar.JANUARY, 1, 0, 0, 0);
+          BOOM_START = gmtCal.getTime();
+          gmtCal.set(1965, Calendar.JANUARY, 1, 0, 0, 0);
+          BOOM_END = gmtCal.getTime();
+      }
+
+      public boolean isBabyBoomer() {
+          return birthDate.compareTo(BOOM_START) >= 0
+                  && birthDate.compareTo(BOOM_END) < 0;
+      }
+  }
+  ```
+
+* 自动装箱
+
+  ```java
+  public static void main(String []args)
+  {
+      Long sum = 0L;
+    	//每次循环都会创建一个对象，因为Long为final
+      for(long i = 0; i < Integer.MAX_VALUE ; i++){
+          sum += i;
+      }
+  }
+  ```
+
+
+#### 第六条：清除过期的对象引用
+
+* 内存泄漏问题
+
+  某个类中保存了对象的引用（而不是对象本身），当对象inActive时，该类却没有及时清空对象引用。由于垃圾回收器并不知道该对象没用，导致其不会被回收。但是清空对象引用，应该被当成是一种例外情况（也就是说一般情况下，还是交由垃圾回收机制来做）。
+
+* 缓存带来的内存泄漏
+
+  * 由Key决定是否清除缓存
+
+    WeakHashMap实现，WeakHashMap中保存了key的weakReference，在创建时传入ReferenceQueue，当key被回收后，key的weakReference加入队列。然后在Entry<K,V>的table中删除value值。
+
+  * ​
+
+
 
 第三章 对于所有对象都通用的方法
 
